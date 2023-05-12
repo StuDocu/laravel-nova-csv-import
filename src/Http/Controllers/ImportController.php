@@ -250,7 +250,13 @@ class ImportController
 
     protected function extractValidationRules(Resource $resource, NovaRequest $request): Collection
     {
-        return collect($resource::rulesForCreation($request))->mapWithKeys(function ($rule, $key) {
+        try {
+            $rules = collect($this->getRulesForCreation($resource, $request));
+        } catch (\Exception $e) {
+            $rules = collect();
+        }
+
+        return $rules->mapWithKeys(function ($rule, $key) {
             foreach ($rule as $i => $r) {
                 if (! is_object($r)) {
                     continue;
